@@ -1,9 +1,12 @@
 import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/services.dart';
 import './flipper_plugin.dart';
 
 class FlipperClient {
-  static const MethodChannel _channel = const MethodChannel('flutter_flipperkit'); 
+  static const MethodChannel _channel =
+      const MethodChannel('flutter_flipperkit');
 
   static FlipperClient _flipperClient;
   static FlipperClient getDefault() {
@@ -21,10 +24,12 @@ class FlipperClient {
   }
 
   void addPlugin(FlipperPlugin plugin) async {
-    await _channel.invokeMethod('clientAddPlugin', {
-      'id': plugin.getId(),
-    });
-    _plugins.putIfAbsent(plugin.getId(), () => plugin);
+    if (Platform.isAndroid) {
+      await _channel.invokeMethod('clientAddPlugin', {
+        'id': plugin.getId(),
+      });
+      _plugins.putIfAbsent(plugin.getId(), () => plugin);
+    }
   }
 
   FlipperPlugin getPlugin(String id) {
@@ -33,10 +38,14 @@ class FlipperClient {
   }
 
   void start() async {
-    await _channel.invokeMethod('clientStart');
+    if (Platform.isAndroid) {
+      await _channel.invokeMethod('clientStart');
+    }
   }
 
   void stop() async {
-    await _channel.invokeMethod('clientStop');
+    if (Platform.isAndroid) {
+      await _channel.invokeMethod('clientStop');
+    }
   }
 }
